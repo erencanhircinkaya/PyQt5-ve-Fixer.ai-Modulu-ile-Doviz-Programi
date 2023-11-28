@@ -1,0 +1,49 @@
+import requests
+import sys
+from PyQt5.QtWidgets import QApplication,QWidget,QLabel,QLineEdit,QPushButton,QVBoxLayout
+class DovizCevirivi(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.api_key = "3e82bf05f134d9a762b8e3c739bbbca4"
+        self.url = "http://data.fixer.io/api/latest?access_key=" + self.api_key
+        self.init_ui()
+    def init_ui(self):
+        self.first_currency_label = QLabel("Birinci Para Birimi:")
+        self.first_currency_input = QLineEdit()
+        self.second_currency_label = QLabel("İkinci Para Birimi:")
+        self.second_currency_input = QLineEdit()
+        self.amount_label = QLabel("Miktar:")
+        self.amount_input = QLineEdit()
+        self.result_label = QLabel("Sonuç:")
+        self.convert_button = QPushButton("Çevir")
+        self.convert_button.clicked.connect(self.convert)
+        layoutV = QVBoxLayout()
+        layoutV.addWidget(self.first_currency_label)
+        layoutV.addWidget(self.first_currency_input)
+        layoutV.addWidget(self.second_currency_label)
+        layoutV.addWidget(self.second_currency_input)
+        layoutV.addWidget(self.amount_label)
+        layoutV.addWidget(self.amount_input)
+        layoutV.addWidget(self.convert_button)
+        layoutV.addWidget(self.result_label)
+        self.setLayout(layoutV)
+        self.setGeometry(200,100,500,500)
+        self.setWindowTitle("Döviz Çeviri")
+        self.show()
+    def convert(self):
+        first_currency = self.first_currency_input.text()
+        second_currency = self.second_currency_input.text()
+        amount = float(self.amount_input.text())
+        response = requests.get(self.url)
+        infos = response.json()
+        firstValue = infos["rates"][first_currency]
+        secondValue = infos["rates"][second_currency]
+        result = ((secondValue / firstValue) * amount)
+        self.result_label.setText(f"Sonuç: {result:.2f} {second_currency}")
+try:
+    app = QApplication(sys.argv)
+    doviz_ceviri = DovizCevirivi()
+    sys.exit(app.exec_())
+except Exception as e:
+    print("Hata:",str(e))
+    raise
